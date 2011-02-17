@@ -285,6 +285,7 @@
       panel.style.top = place.parentNode.offsetTop + place.parentNode.offsetHeight + 10;
       panel.style.maxWidth = (place.parentNode.offsetWidth - 26) + "px";
       panel.style.display = "none";
+      panel.addEventListener("keydown", function(e) { if (27 == e.keyCode) EditFilter.cancelEditing(e) }, true);
 
       var table = panel.appendChild(document.createElement("table"));
       var tr = table.appendChild(document.createElement("tr"));
@@ -298,6 +299,7 @@
       input.setAttribute("type", "text");
       input.addEventListener("focus", EditFilter.setTimer, false);
       input.addEventListener("blur", EditFilter.clearTimer, false);
+      input.addEventListener("keydown", function(e) { if (13 == e.keyCode) EditFilter.addFilter(e) }, false);
       lcolumn.appendChild(input);
       lcolumn.appendChild(document.createElement("br"));
 
@@ -307,6 +309,7 @@
       select.setAttribute("size", 10);
       select.setAttribute("multiple", "multiple");
       select.addEventListener("change", EditFilter.selectFilter, false);
+      select.addEventListener("keydown", function(e) { if (46 == e.keyCode) EditFilter.removeFilter(e) }, false);
       lcolumn.appendChild(select);
 
       ["add", "edit", "remove", "reset"].forEach(function(value) {
@@ -346,6 +349,12 @@
         p.appendChild(document.createTextNode(" "));
       });
       panel.appendChild(p);
+
+      var firstTarget = panel.insertBefore(document.createElement("a"), panel.firstChild);
+      var lastTarget = panel.appendChild(document.createElement("a"));
+      firstTarget.href = lastTarget.href = "#";
+      firstTarget.addEventListener("focus", function() { $("filter-cancel").focus() }, false);
+      lastTarget.addEventListener("focus", function() { $("filter-edit-area").focus() }, false);
 
       place.parentNode.appendChild(panel);
       EditFilter.updateFilterList();
@@ -409,6 +418,7 @@
 
     addFilter: function(event) {
       var filter = EditFilter.filter = $("filter-edit-area").value;
+      if (filter == "") return;
       if (!EditFilter.checkFilterExists(filter)) return;
       if (!EditFilter.checkFilterValid(filter)) return;
       EditFilter.list.push(filter);
@@ -452,12 +462,20 @@
 
     removeFilter: function(event) {
       var selected = EditFilter.selected;
+      var first = EditFilter.selected[0];
       for (var i = selected.length - 1; 0 <= i; i--) {
         var index = selected[i];
         if (0 <= index && index < EditFilter.list.length) EditFilter.list.splice(index, 1);
       }
       EditFilter.filter = $("filter-edit-area").value = "";
       EditFilter.updateFilterList();
+      if (first) {
+        var option = $("filter-list").childNodes[first];
+        if (option) {
+          option.selected = true;
+          EditFilter.selectFilter(event);
+        }
+      }
     },
 
     resetFilter: function(event) {
@@ -579,7 +597,9 @@
       event.preventDefault();
       var screen = $("search-filter-screen");
       var panel = $("search-filter-panel");
-      screen.style.display = panel.style.display = (panel.style.display == "none") ? "block" : "none";
+      var show = (panel.style.display == "none");
+      screen.style.display = panel.style.display = show ? "block" : "none";
+      $(show ? "filter-edit-area" : "search-filter-panel-button").focus();
     },
 
     toggleShowTemporary: function(event) {
