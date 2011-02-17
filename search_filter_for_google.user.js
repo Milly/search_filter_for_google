@@ -111,7 +111,8 @@
       Language.init();
       SearchFilter.load();
       if(SearchFilter.useEditor) EditFilter.init();
-      GM_registerMenuCommand("SFG - " + _("mode"), SearchFilter.toggleMode, '', '', _("modekey"));
+      GM_registerMenuCommand("SFG - " + _("mode"), SearchFilter.toggleHideMode, '', '', _("modekey"));
+      GM_registerMenuCommand("SFG - " + _("editor"), SearchFilter.toggleUseEditor, '', '', _("editorkey"));
 
       SearchFilter.filtering();
       addFilter(function(elm){
@@ -125,6 +126,7 @@
     save: function(){
       GM_setValue("filter", JSON.stringify(SearchFilter.list));
       GM_setValue("mode", SearchFilter.hidden);
+      GM_setValue("useEditor", SearchFilter.useEditor);
     },
 
     load: function(){
@@ -135,6 +137,7 @@
         SearchFilter.list = SearchFilter.filters.slice();
       }
       SearchFilter.hidden = GM_getValue("mode", SearchFilter.hidden) || false;
+      SearchFilter.useEditor = GM_getValue("useEditor", SearchFilter.useEditor) !== false;
     },
 
     filtering: function(){
@@ -161,7 +164,12 @@
         else{
           removeClass(results[i], 'filtered');
         }
-        if(SearchFilter.useEditor) EditFilter.createLink(results[i], anchor);
+        if(SearchFilter.useEditor) {
+          EditFilter.createLink(results[i], anchor);
+        }
+        else{
+          EditFilter.removeLink(results[i]);
+        }
       }
     },
 
@@ -210,8 +218,19 @@
       }
     },
 
-    toggleMode: function(){
+    toggleHideMode: function(){
       SearchFilter.hideElements(SearchFilter.hidden = !SearchFilter.hidden);
+      SearchFilter.save();
+    },
+
+    toggleUseEditor: function(){
+      if (SearchFilter.useEditor = !SearchFilter.useEditor) {
+        EditFilter.init();
+      }
+      else{
+        EditFilter.hideAll();
+      }
+      SearchFilter.filtering();
       SearchFilter.save();
     }
   };
@@ -221,8 +240,15 @@
     selected: [],
     filter: "",
     timer: null,
+    initialized: false,
 
     init: function(){
+      if (EditFilter.initialized) {
+        $("search-filter-panel-button").style.display = "";
+        return;
+      }
+      EditFilter.initialized = true;
+
       EditFilter.list = SearchFilter.list.slice();
 
       GM_addStyle([
@@ -333,6 +359,15 @@
       EditFilter.updateFilterList();
     },
 
+    hideAll: function(){
+      if (EditFilter.initialized) {
+        [ "search-filter-panel-button",
+          "search-filter-screen",
+          "search-filter-panel" ]
+          .forEach(function(id){ $(id).style.display = "none" });
+      }
+    },
+
     createLink: function(parent, anchor){
       var exists = $X(".//span[local:has-class('filter-buttons')]", parent)[0];
       if(exists) return;
@@ -356,6 +391,11 @@
 
       var position = $X(".//h3[local:has-class('r')]|.//a[local:has-class('l')]", parent)[0];
       position.parentNode.insertBefore(span, position.nextSibling);
+    },
+
+    removeLink: function(parent){
+      var buttons = $X(".//span[local:has-class('filter-buttons')]", parent)[0];
+      if (buttons) buttons.parentNode.removeChild(buttons);
     },
 
     addFromLink: function(event){
@@ -590,8 +630,10 @@
       edit       : "\u7de8\u96c6",
       remove     : "\u524a\u9664",
       reset      : "\u521d\u671f\u5316",
-      mode       : "\u30d5\u30a3\u30eb\u30bf\u306b\u30de\u30c3\u30c1\u3057\u305f\u7d50\u679c\u3092\u975e\u8868\u793a.",
+      mode       : "\u30d5\u30a3\u30eb\u30bf\u306b\u30de\u30c3\u30c1\u3057\u305f\u7d50\u679c\u3092\u975e\u8868\u793a",
       modekey    : "H",
+      editor     : "\u30D5\u30A3\u30EB\u30BF\u8A2D\u5B9A\u3092\u4F7F\u7528",
+      editorkey  : "E",
       ok         : "OK",
       cancel     : "\u30ad\u30e3\u30f3\u30bb\u30eb",
       filter     : "\u30d5\u30a3\u30eb\u30bf\u30fc",
@@ -610,8 +652,10 @@
       edit       : "Edit",
       remove     : "Delete",
       reset      : "Reset",
-      mode       : "Completely hide filtered results.",
+      mode       : "Completely hide filtered results",
       modekey    : "H",
+      editor     : "Enable filter editor",
+      editorkey  : "E",
       ok         : "OK",
       cancel     : "Cancel",
       filter     : "Filter",
