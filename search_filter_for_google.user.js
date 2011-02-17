@@ -15,7 +15,7 @@
 // Google Search Filter (http://userscripts.org/scripts/show/12643) by Shinya
 // Google Search Site-block (http://note.openvista.jp/212/) by leva
 
-(function(){
+(function() {
   var SearchFilter = {
     // == Config ==================
 
@@ -98,7 +98,7 @@
 
     list: [],
 
-    init: function(){
+    init: function() {
       GM_addStyle([
         "body.hide-filtered li.filtered { visibility: hidden; height: 0; margin: 0; }",
         "li.filtered h3.r { font-size: " + SearchFilter.characterSize + "; }",
@@ -110,85 +110,80 @@
 
       Language.init();
       SearchFilter.load();
-      if(SearchFilter.useEditor) EditFilter.init();
+      if (SearchFilter.useEditor) EditFilter.init();
       GM_registerMenuCommand("SFG - " + _("mode"), SearchFilter.toggleHideMode, '', '', _("modekey"));
       GM_registerMenuCommand("SFG - " + _("editor"), SearchFilter.toggleUseEditor, '', '', _("editorkey"));
 
       SearchFilter.filtering();
-      addFilter(function(elm){
-        for(var i = 0, l = elm.length; i < l; i++){
+      addFilter(function(elm) {
+        for (var i = 0, l = elm.length; i < l; i++) {
           SearchFilter.filterElements($X(".//li[local:has-class('w0')]", elm[i]));
           break;
         }
       });
     },
 
-    save: function(){
+    save: function() {
       GM_setValue("filter", JSON.stringify(SearchFilter.list));
       GM_setValue("mode", SearchFilter.hidden);
       GM_setValue("useEditor", SearchFilter.useEditor);
     },
 
-    load: function(){
-      try{
+    load: function() {
+      try {
         SearchFilter.list = JSON.parse(GM_getValue("filter"));
-      }
-      catch(e){
+      } catch(e) {
         SearchFilter.list = SearchFilter.filters.slice();
       }
       SearchFilter.hidden = GM_getValue("mode", SearchFilter.hidden) || false;
       SearchFilter.useEditor = GM_getValue("useEditor", SearchFilter.useEditor) !== false;
     },
 
-    filtering: function(){
+    filtering: function() {
       SearchFilter.filterElements($X("//li[local:has-class('w0') and not(local:has-class('videobox'))]"));
       SearchFilter.hideElements(SearchFilter.hidden);
     },
 
-    hideElements: function(hidden){
-      if(hidden){
+    hideElements: function(hidden) {
+      if (hidden) {
         addClass(document.body, "hide-filtered");
-      }
-      else{
+      } else {
         removeClass(document.body, "hide-filtered");
       }
     },
 
-    filterElements: function(results){
+    filterElements: function(results) {
       var urlregexp = SearchFilter.createUrlRegExp();
-      for(var i = 0, l = results.length; i < l; i++){
+      for (var i = 0, l = results.length; i < l; i++) {
         var anchor = $X(".//a[local:has-class('l')]", results[i])[0];
-        if(urlregexp && urlregexp.test(anchor.href)){
+        if (urlregexp && urlregexp.test(anchor.href)) {
           addClass(results[i], 'filtered');
-        }
-        else{
+        } else {
           removeClass(results[i], 'filtered');
         }
-        if(SearchFilter.useEditor) {
+        if (SearchFilter.useEditor) {
           EditFilter.createLink(results[i], anchor);
-        }
-        else{
+        } else {
           EditFilter.removeLink(results[i]);
         }
       }
     },
 
-    createUrlRegExp: function(){
+    createUrlRegExp: function() {
       var regexplist = [];
-      for(var i = 0, b = SearchFilter.list.length; i < b; i++){
+      for (var i = 0, b = SearchFilter.list.length; i < b; i++) {
         var regexp = SearchFilter.createRegString(SearchFilter.list[i]);
-        if(regexp) regexplist.push(regexp);
+        if (regexp) regexplist.push(regexp);
       }
-      if(!regexplist.length) return null;
+      if (!regexplist.length) return null;
       return new RegExp("(?:" + regexplist.join(")|(?:") + ")", "i");
     },
 
-    createRegString: function(filter){
-      if(/^!/.test(filter)) return null;
-      if(/^\/.*\/$/.test(filter)){
+    createRegString: function(filter) {
+      if (/^!/.test(filter)) return null;
+      if (/^\/.*\/$/.test(filter)) {
         var regexp = filter.substring(1, filter.length - 1);
-      }
-      else{
+      } else {
         var regexp = filter
           .replace(/$.*/, "")                          // options
           .replace(/(?=[.()\[\]{}\\+?|])/g, '\\')      // escape regexp
@@ -198,36 +193,33 @@
           .replace(/\[\/:\?=&\]$/, '(?:[/:?=&].*|)$')  // separator or end
           .replace(/^\\\|\\\|/, "^[a-z0-9_+-]+://(?:[^/.?]+\\.)*");
                                                        // any protocol or sub domain
-        if(/^\\\||\\\|$/.test(regexp)){
+        if (/^\\\||\\\|$/.test(regexp)) {
           regexp = regexp
             .replace(/^\\\|/, "^")                     // beginning
             .replace(/\\\|$/, "$");                    // end
-        }
-        else{
+        } else {
           regexp = regexp
             .replace(/^(?!\^)/, "^")                   // beginning
             .replace(/[^$]$/, "$&$");                  // end
         }
       }
-      try{
+      try {
         new RegExp(regexp, "i");
         return regexp;
-      }
-      catch(e){
+      } catch(e) {
         return null;
       }
     },
 
-    toggleHideMode: function(){
+    toggleHideMode: function() {
       SearchFilter.hideElements(SearchFilter.hidden = !SearchFilter.hidden);
       SearchFilter.save();
     },
 
-    toggleUseEditor: function(){
+    toggleUseEditor: function() {
       if (SearchFilter.useEditor = !SearchFilter.useEditor) {
         EditFilter.init();
-      }
-      else{
+      } else {
         EditFilter.hideAll();
       }
       SearchFilter.filtering();
@@ -242,7 +234,7 @@
     timer: null,
     initialized: false,
 
-    init: function(){
+    init: function() {
       if (EditFilter.initialized) {
         $("search-filter-panel-button").style.display = "";
         return;
@@ -317,13 +309,13 @@
       select.addEventListener("change", EditFilter.selectFilter, false);
       lcolumn.appendChild(select);
 
-      ["add", "edit", "remove", "reset"].forEach(function(value){
+      ["add", "edit", "remove", "reset"].forEach(function(value) {
         var button = document.createElement("input");
         button.id = "filter-" + value;
         button.setAttribute("name", "filter-" + value);
         button.setAttribute("type", "button");
         button.setAttribute("value", Language[Language.lang][value]);
-        if(value != "reset"){
+        if (value != "reset") {
           button.setAttribute("disabled", "disabled");
         }
         button.addEventListener("click", EditFilter[value + "Filter"], false);
@@ -336,14 +328,14 @@
       check.id = "filter-mode";
       check.setAttribute("name", "filter-mode");
       check.setAttribute("type", "checkbox");
-      if(SearchFilter.hidden) check.setAttribute("checked", "checked");
+      if (SearchFilter.hidden) check.setAttribute("checked", "checked");
       mode.appendChild(check);
       mode.appendChild(document.createTextNode(" " + _('mode')));
       panel.appendChild(mode);
 
       var p = document.createElement("p");
       p.id = "filter-accept-buttons";
-      ["ok", "cancel"].forEach(function(value){
+      ["ok", "cancel"].forEach(function(value) {
         var button = document.createElement("input");
         button.id = "filter-" + value;
         button.setAttribute("name", "filter-" + value);
@@ -359,18 +351,18 @@
       EditFilter.updateFilterList();
     },
 
-    hideAll: function(){
+    hideAll: function() {
       if (EditFilter.initialized) {
         [ "search-filter-panel-button",
           "search-filter-screen",
           "search-filter-panel" ]
-          .forEach(function(id){ $(id).style.display = "none" });
+          .forEach(function(id) { $(id).style.display = "none" });
       }
     },
 
-    createLink: function(parent, anchor){
+    createLink: function(parent, anchor) {
       var exists = $X(".//span[local:has-class('filter-buttons')]", parent)[0];
-      if(exists) return;
+      if (exists) return;
 
       var span = document.createElement("span");
       span.className = "filter-buttons";
@@ -393,21 +385,21 @@
       position.parentNode.insertBefore(span, position.nextSibling);
     },
 
-    removeLink: function(parent){
+    removeLink: function(parent) {
       var buttons = $X(".//span[local:has-class('filter-buttons')]", parent)[0];
       if (buttons) buttons.parentNode.removeChild(buttons);
     },
 
-    addFromLink: function(event){
+    addFromLink: function(event) {
       event.preventDefault();
       var domain = event.target.href.match(/#([\w.-]+)$/)[1];
       var filter = "||" + domain + "^";
-      if(confirm(_('confirm', filter)))
+      if (confirm(_('confirm', filter)))
         EditFilter.addList(filter);
     },
 
-    addList: function(filter){
-      if(!EditFilter.checkFilterExists(filter)) return;
+    addList: function(filter) {
+      if (!EditFilter.checkFilterExists(filter)) return;
       EditFilter.list.push(filter);
       EditFilter.updateFilterList();
       SearchFilter.list = EditFilter.list.slice();
@@ -415,17 +407,17 @@
       SearchFilter.filtering();
     },
 
-    addFilter: function(event){
+    addFilter: function(event) {
       var filter = EditFilter.filter = $("filter-edit-area").value;
-      if(!EditFilter.checkFilterExists(filter)) return;
-      if(!EditFilter.checkFilterValid(filter)) return;
+      if (!EditFilter.checkFilterExists(filter)) return;
+      if (!EditFilter.checkFilterValid(filter)) return;
       EditFilter.list.push(filter);
       EditFilter.updateFilterList(filter);
     },
 
-    checkFilterExists: function(filter){
-      for(var i = 0, l = EditFilter.list.length; i < l; i++){
-        if(filter == EditFilter.list[i]){
+    checkFilterExists: function(filter) {
+      for (var i = 0, l = EditFilter.list.length; i < l; i++) {
+        if (filter == EditFilter.list[i]) {
           alert(_('exists', filter));
           return false;
         }
@@ -433,23 +425,23 @@
       return true;
     },
 
-    checkFilterValid: function(filter){
-      if(!SearchFilter.createRegString(filter)){
+    checkFilterValid: function(filter) {
+      if (!SearchFilter.createRegString(filter)) {
         alert(_('invalid', filter));
         return false;
       }
       return true;
     },
 
-    editFilter: function(event){
+    editFilter: function(event) {
       var filter = $("filter-edit-area").value;
-      if(EditFilter.filter == filter){
+      if (EditFilter.filter == filter) {
         alert(_('notChanged', filter));
         return;
       }
-      if(!EditFilter.checkFilterValid(filter)) return;
-      for(var i = 0, l = EditFilter.list.length; i < l; i++){
-        if(EditFilter.filter == EditFilter.list[i]){
+      if (!EditFilter.checkFilterValid(filter)) return;
+      for (var i = 0, l = EditFilter.list.length; i < l; i++) {
+        if (EditFilter.filter == EditFilter.list[i]) {
           EditFilter.list[i] = filter;
           break;
         }
@@ -458,18 +450,18 @@
       EditFilter.updateFilterList(filter);
     },
 
-    removeFilter: function(event){
+    removeFilter: function(event) {
       var selected = EditFilter.selected;
-      for(var i = selected.length - 1; 0 <= i; i--){
+      for (var i = selected.length - 1; 0 <= i; i--) {
         var index = selected[i];
-        if(0 <= index && index < EditFilter.list.length) EditFilter.list.splice(index, 1);
+        if (0 <= index && index < EditFilter.list.length) EditFilter.list.splice(index, 1);
       }
       EditFilter.filter = $("filter-edit-area").value = "";
       EditFilter.updateFilterList();
     },
 
-    resetFilter: function(event){
-      if(confirm(_('init'))){
+    resetFilter: function(event) {
+      if (confirm(_('init'))) {
         EditFilter.list = SearchFilter.filters.slice()
         SearchFilter.list = EditFilter.list.slice();
         EditFilter.updateFilterList();
@@ -477,7 +469,7 @@
       }
     },
 
-    okEditing: function(event){
+    okEditing: function(event) {
       SearchFilter.list = EditFilter.list.slice();
       SearchFilter.hidden = $("filter-mode").checked;
       SearchFilter.save();
@@ -485,28 +477,27 @@
       SearchFilter.filtering();
     },
 
-    cancelEditing: function(event){
+    cancelEditing: function(event) {
       EditFilter.list = SearchFilter.list.slice();
       EditFilter.updateFilterList();
       EditFilter.toggleDisplayList(event);
     },
 
-    updateFilterList: function(filter){
+    updateFilterList: function(filter) {
       var list = $("filter-list");
-      while(list.firstChild){
+      while (list.firstChild) {
         list.removeChild(list.firstChild);
       }
-      EditFilter.list.forEach(function(value){
+      EditFilter.list.forEach(function(value) {
         var option = document.createElement("option");
-        if(filter && value == filter) option.setAttribute("selected", "selected");
+        if (filter && value == filter) option.setAttribute("selected", "selected");
         value = value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        if(/^!/.test(value)){
+        if (/^!/.test(value)) {
           option.className = "filter-comment";
         }
-        else if(/^\/.*\/$/.test(value)){
+        else if (/^\/.*\/$/.test(value)) {
           option.className = "filter-regexp";
-        }
-        else{
+        } else {
           value = value.replace(/^\|\|?|\^|\*|\|$/g, '<b>$&</b>')
         }
         option.innerHTML = value;
@@ -516,56 +507,54 @@
       EditFilter.resetEnableButton();
     },
 
-    getSelectedIndexes: function(){
+    getSelectedIndexes: function() {
       var selected = [];
       var options = $("filter-list").childNodes;
-      for(var i = 0, l = options.length; i < l; i++){
-        if(options[i].selected) selected.push(i);
+      for (var i = 0, l = options.length; i < l; i++) {
+        if (options[i].selected) selected.push(i);
       }
       return selected;
     },
 
-    selectFilter: function(event){
+    selectFilter: function(event) {
       EditFilter.selected = EditFilter.getSelectedIndexes();
-      if(1 == EditFilter.selected.length){
+      if (1 == EditFilter.selected.length) {
         var value = EditFilter.list[event.target.selectedIndex] || "";
         EditFilter.filter = $("filter-edit-area").value = value;
-      }
-      else{
+      } else {
         EditFilter.filter = "";
       }
       EditFilter.resetEnableButton();
     },
 
-    setTimer: function(event){
+    setTimer: function(event) {
       EditFilter.timer = setInterval(EditFilter.checkValue, 250);
     },
 
-    clearTimer: function(event){
+    clearTimer: function(event) {
       clearInterval(EditFilter.timer);
       EditFilter.timer = null;
     },
 
-    checkValue: function(){
+    checkValue: function() {
       var filter = $("filter-edit-area").value;
       if (EditFilter.checkedFilter == filter) return;
 
       var enabled = [];
-      if(filter != ""){
-        if(EditFilter.filter == ""){
+      if (filter != "") {
+        if (EditFilter.filter == "") {
           enabled.push("add");
         }
-        else if(filter != EditFilter.filter){
+        else if (filter != EditFilter.filter) {
           enabled.push("add");
-          if(1 == EditFilter.selected.length) enabled.push("edit");
+          if (1 == EditFilter.selected.length) enabled.push("edit");
         }
       }
-      ["add", "edit"].forEach(function(value){
+      ["add", "edit"].forEach(function(value) {
         var button = $("filter-" + value);
-        if(0 <= enabled.indexOf(value)){
+        if (0 <= enabled.indexOf(value)) {
           button.removeAttribute("disabled");
-        }
-        else{
+        } else {
           button.setAttribute("disabled", "disabled");
         }
       });
@@ -573,35 +562,33 @@
       EditFilter.checkedFilter = filter;
     },
 
-    resetEnableButton: function(){
-      ["add", "edit"].forEach(function(value){
+    resetEnableButton: function() {
+      ["add", "edit"].forEach(function(value) {
         var button = $("filter-" + value);
         button.setAttribute("disabled", "disabled");
       });
       var button = $("filter-remove");
-      if(0 == EditFilter.selected.length){
+      if (0 == EditFilter.selected.length) {
         button.setAttribute("disabled", "disabled");
-      }
-      else{
+      } else {
         button.removeAttribute("disabled");
       }
     },
 
-    toggleDisplayList: function(event){
+    toggleDisplayList: function(event) {
       event.preventDefault();
       var screen = $("search-filter-screen");
       var panel = $("search-filter-panel");
       screen.style.display = panel.style.display = (panel.style.display == "none") ? "block" : "none";
     },
 
-    toggleShowTemporary: function(event){
+    toggleShowTemporary: function(event) {
       event.preventDefault();
       var element = $X("./ancestor::li[local:has-class('filtered')]", event.target)[0];
-      if(hasClass(element, "show-temporary")){
+      if (hasClass(element, "show-temporary")) {
         removeClass(element, "show-temporary");
         var text = _("show");
-      }
-      else{
+      } else {
         addClass(element, "show-temporary");
         var text = _("hide");
       }
@@ -613,15 +600,15 @@
   var Language = {
     lang: "en",
 
-    init: function(){
+    init: function() {
       var lang = navigator.language.substring(0,2);
       Language.lang = Language[lang] ? lang : "en";
     },
 
-    getMessage: function(){
+    getMessage: function() {
       var args = Array.prototype.slice.call(arguments), id = args.shift();
       var msg = Language[Language.lang][id] || Language["en"][id];
-      return msg.replace(/{(\d+)}/g, function(_, n){ return args[n]; });
+      return msg.replace(/{(\d+)}/g, function(_, n) { return args[n]; });
     },
 
     ja: {
@@ -685,7 +672,7 @@
    */
   function $X(exp, context) {
     if (!context) context = document;
-    var resolver = function(prefix){
+    var resolver = function(prefix) {
       var o = document.createNSResolver(context)(prefix);
       return o ? o : (document.contentType == "text/html") ? "" : "http://www.w3.org/1999/xhtml";
     }
@@ -693,14 +680,14 @@
     var exp = document.createExpression(exp, resolver);
 
     var result = exp.evaluate(context, XPathResult.ANY_TYPE, null);
-    switch(result.resultType){
+    switch (result.resultType) {
       case XPathResult.STRING_TYPE : return result.stringValue;
       case XPathResult.NUMBER_TYPE : return result.numberValue;
       case XPathResult.BOOLEAN_TYPE: return result.booleanValue;
       case XPathResult.UNORDERED_NODE_ITERATOR_TYPE: {
         result = exp.evaluate(context, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
         var ret = [];
-        for(var i = 0, len = result.snapshotLength; i < len ; i++){
+        for (var i = 0, len = result.snapshotLength; i < len ; i++) {
           ret.push(result.snapshotItem(i));
         }
         return ret;
@@ -712,28 +699,28 @@
   // For Autopagerize 0.0.12
   function addFilter(filter, i) {
     i = i || 4;
-    if(window.AutoPagerize && window.AutoPagerize.addFilter){
+    if (window.AutoPagerize && window.AutoPagerize.addFilter) {
       window.AutoPagerize.addFilter(filter);
     }
-    else if(i > 1){
+    else if (i > 1) {
       setTimeout(arguments.callee, 1000, filter, i - 1);
     }
   }
 
-  function hasClass(element, name){
+  function hasClass(element, name) {
     var names = ' ' + element.className.replace(/\s+/g, ' ') + ' ';
     return 0 < names.indexOf(' ' + name + ' ');
   }
 
-  function addClass(element, name){
+  function addClass(element, name) {
     if (!hasClass(element, name))
       element.className = (element.className + ' ' + name).replace(/^\s+|\s+$/g, '');
   }
 
-  function removeClass(element, name){
+  function removeClass(element, name) {
     var names = ' ' + element.className.replace(/\s+/g, ' ') + ' ';
     element.className = names.replace(' ' + name + ' ', ' ').replace(/^\s+|\s+$/g, '');
   }
 
-  if(document.body) SearchFilter.init();
+  if (document.body) SearchFilter.init();
 })();
