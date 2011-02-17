@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Search Filter for Google
 // @description    Remove Google search results by filter.
-// @version        1.0.0
+// @version        1.0.1
 // @author         Milly
 // @namespace      http://d.hatena.ne.jp/MillyC/
 // @homepage       http://userscripts.org/scripts/show/92206
@@ -578,7 +578,7 @@
       add        : "\u8ffd\u52a0",
       edit       : "\u7de8\u96c6",
       remove     : "\u524a\u9664",
-      reset      : "\u521d\u671f\u5024",
+      reset      : "\u521d\u671f\u5316",
       mode       : "\u30d5\u30a3\u30eb\u30bf\u306b\u30de\u30c3\u30c1\u3057\u305f\u7d50\u679c\u3092\u975e\u8868\u793a.",
       ok         : "OK",
       cancel     : "\u30ad\u30e3\u30f3\u30bb\u30eb",
