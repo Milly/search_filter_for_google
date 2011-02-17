@@ -580,7 +580,8 @@
 
     getMessage: function(){
       var args = Array.prototype.slice.call(arguments), id = args.shift();
-      return Language[Language.lang][id].replace(/{(\d+)}/g, function(_, n){ return args[n]; });
+      var msg = Language[Language.lang][id] || Language["en"][id];
+      return msg.replace(/{(\d+)}/g, function(_, n){ return args[n]; });
     },
 
     ja: {
