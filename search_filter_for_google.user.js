@@ -111,6 +111,7 @@
       Language.init();
       SearchFilter.load();
       if(SearchFilter.useEditor) EditFilter.init();
+      GM_registerMenuCommand("SFG - " + _("mode"), SearchFilter.toggleMode, '', '', _("modekey"));
 
       SearchFilter.filtering();
       addFilter(function(elm){
@@ -138,7 +139,11 @@
 
     filtering: function(){
       SearchFilter.filterElements($X("//li[local:has-class('w0') and not(local:has-class('videobox'))]"));
-      if(SearchFilter.hidden){
+      SearchFilter.hideElements(SearchFilter.hidden);
+    },
+
+    hideElements: function(hidden){
+      if(hidden){
         addClass(document.body, "hide-filtered");
       }
       else{
@@ -203,6 +208,11 @@
       catch(e){
         return null;
       }
+    },
+
+    toggleMode: function(){
+      SearchFilter.hideElements(SearchFilter.hidden = !SearchFilter.hidden);
+      SearchFilter.save();
     }
   };
 
@@ -580,6 +590,7 @@
       remove     : "\u524a\u9664",
       reset      : "\u521d\u671f\u5316",
       mode       : "\u30d5\u30a3\u30eb\u30bf\u306b\u30de\u30c3\u30c1\u3057\u305f\u7d50\u679c\u3092\u975e\u8868\u793a.",
+      modekey    : "H",
       ok         : "OK",
       cancel     : "\u30ad\u30e3\u30f3\u30bb\u30eb",
       filter     : "\u30d5\u30a3\u30eb\u30bf\u30fc",
@@ -599,6 +610,7 @@
       remove     : "Delete",
       reset      : "Reset",
       mode       : "Completely hide filtered results.",
+      modekey    : "H",
       ok         : "OK",
       cancel     : "Cancel",
       filter     : "Filter",
