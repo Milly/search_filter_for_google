@@ -243,7 +243,7 @@
       var link = document.createElement("a");
       link.id = "search-filter-panel-button";
       link.setAttribute("href", "#");
-      link.appendChild(document.createTextNode(Language.getMessage('config')));
+      link.appendChild(document.createTextNode(_('config')));
       link.addEventListener("click", EditFilter.toggleDisplayList, false);
       place.appendChild(link);
 
@@ -302,7 +302,7 @@
       check.setAttribute("type", "checkbox");
       if(SearchFilter.hidden) check.setAttribute("checked", "checked");
       mode.appendChild(check);
-      mode.appendChild(document.createTextNode(" " + Language.getMessage('mode')));
+      mode.appendChild(document.createTextNode(" " + _('mode')));
       panel.appendChild(mode);
 
       var p = document.createElement("p");
@@ -333,14 +333,14 @@
       var filterLink = document.createElement("a");
       filterLink.className = "filter-button";
       filterLink.setAttribute("href", "#" + anchor.host);
-      filterLink.appendChild(document.createTextNode(Language.getMessage('filter')));
+      filterLink.appendChild(document.createTextNode(_('filter')));
       filterLink.addEventListener("click", EditFilter.addFromLink, false);
       span.appendChild(filterLink);
 
       var showLink = document.createElement("a");
       showLink.className = "show-temporary-button";
       showLink.setAttribute("href", "#");
-      showLink.appendChild(document.createTextNode(Language.getMessage('show')));
+      showLink.appendChild(document.createTextNode(_('show')));
       showLink.addEventListener("click", EditFilter.toggleShowTemporary, false);
       span.appendChild(showLink);
 
@@ -352,7 +352,7 @@
       event.preventDefault();
       var domain = event.target.href.match(/#([\w.-]+)$/)[1];
       var filter = "||" + domain + "^";
-      if(confirm(Language.getMessage('confirm', filter)))
+      if(confirm(_('confirm', filter)))
         EditFilter.addList(filter);
     },
 
@@ -376,7 +376,7 @@
     checkFilterExists: function(filter){
       for(var i = 0, l = EditFilter.list.length; i < l; i++){
         if(filter == EditFilter.list[i]){
-          alert(Language.getMessage('exists', filter));
+          alert(_('exists', filter));
           return false;
         }
       }
@@ -385,7 +385,7 @@
 
     checkFilterValid: function(filter){
       if(!SearchFilter.createRegString(filter)){
-        alert(Language.getMessage('invalid', filter));
+        alert(_('invalid', filter));
         return false;
       }
       return true;
@@ -394,7 +394,7 @@
     editFilter: function(event){
       var filter = $("filter-edit-area").value;
       if(EditFilter.filter == filter){
-        alert(Language.getMessage('notChanged', filter));
+        alert(_('notChanged', filter));
         return;
       }
       if(!EditFilter.checkFilterValid(filter)) return;
@@ -419,7 +419,7 @@
     },
 
     resetFilter: function(event){
-      if(confirm(Language.getMessage('init'))){
+      if(confirm(_('init'))){
         EditFilter.list = SearchFilter.filters.slice()
         SearchFilter.list = EditFilter.list.slice();
         EditFilter.updateFilterList();
@@ -549,11 +549,11 @@
       var element = $X("./ancestor::li[local:has-class('filtered')]", event.target)[0];
       if(hasClass(element, "show-temporary")){
         removeClass(element, "show-temporary");
-        var text = Language.getMessage("show");
+        var text = _("show");
       }
       else{
         addClass(element, "show-temporary");
-        var text = Language.getMessage("hide");
+        var text = _("hide");
       }
       event.target.innerHTML = "";
       event.target.appendChild(document.createTextNode(text));
@@ -611,6 +611,10 @@
       init       : "Are you sure you want to reset all your filters?",
     }
   };
+
+  function _(msg) {
+    return Language.getMessage.apply(Language, arguments);
+  }
 
   function $(id) {
     return ("string" != typeof id) ? id : document.getElementById(id);
