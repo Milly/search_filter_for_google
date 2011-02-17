@@ -1,0 +1,20 @@
++---------------------------------------------+
+|  'Search Filter for Google' project README  |
++---------------------------------------------+
+
+== Summary
+
+This project provides filtering to google search results for greasemonkey.
+
+== Description
+
+Filtering Google's search result by user configable filter list.
+
+== License
+
+Released under the CC by-nc-sa ja license.
+http://creativecommons.org/licenses/by-nc-sa/2.1/jp/
+
+This script based on
+Google Search Filter (http://userscripts.org/scripts/show/12643) by Shinya
+Google Search Site-block (http://note.openvista.jp/212/) by leva
