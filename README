@@ -9,6 +9,7 @@ This project provides filtering to google search results for greasemonkey.
 == Description
 
 Filtering Google's search result by user configable filter list.
+The filter formats is similar to the Adblock Plus.
 
 == License
 
