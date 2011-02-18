@@ -121,12 +121,7 @@
       GM_registerMenuCommand("SFG - " + _("editor"), SearchFilter.toggleUseEditor, '', '', _("editorkey"));
 
       SearchFilter.filtering();
-      addFilter(function(elm) {
-        for (var i = 0, l = elm.length; i < l; i++) {
-          SearchFilter.filterElements($X(".//li[local:has-class('w0')]", elm[i]));
-          break;
-        }
-      });
+      addPageUpdateEventListener(SearchFilter.filtering);
     },
 
     save: function() {
@@ -722,14 +717,18 @@
     return null;
   }
 
-  // For Autopagerize 0.0.12
-  function addFilter(filter, i) {
-    i = i || 4;
-    if (window.AutoPagerize && window.AutoPagerize.addFilter) {
-      window.AutoPagerize.addFilter(filter);
+  // For AutoPagerize
+  function addPageUpdateEventListener(listener, loop) {
+    if ("undefined" == typeof loop) {
+      loop = 4;
+      document.addEventListener("GM_AutoPagerizeNextPageLoaded", listener, false);
     }
-    else if (i > 1) {
-      setTimeout(arguments.callee, 1000, filter, i - 1);
+    if (window.AutoPagerize && window.AutoPagerize.addFilter) {
+      document.removeEventListener("GM_AutoPagerizeNextPageLoaded", listener, false);
+      window.AutoPagerize.addFilter(listener);
+    }
+    else if (loop > 1) {
+      setTimeout(arguments.callee, 1000, listener, loop - 1);
     }
   }
 
