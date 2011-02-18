@@ -17,7 +17,7 @@
 
 (function() {
   var SearchFilter = {
-    // == Config ==================
+    // == Config =================={{{
 
     // Default filters
     // CAUTION: Script DO NOT use this list if you used "Filters Editor".
@@ -99,10 +99,10 @@
     // Use "Filters Editor"
     useEditor: true,
 
-    // == Config end ==============
-
+    // == Config end ==============}}}
 
     list: [],
+    pageUpdateEventTimer: null,
 
     init: function() {
       GM_addStyle([
@@ -121,7 +121,20 @@
       GM_registerMenuCommand("SFG - " + _("editor"), SearchFilter.toggleUseEditor, '', '', _("editorkey"));
 
       SearchFilter.filtering();
-      addPageUpdateEventListener(SearchFilter.filtering);
+      SearchFilter.addPageUpdateEvent();
+    },
+
+    addPageUpdateEvent: function() {
+      $("res").addEventListener("DOMNodeInserted", function(event) {
+        if (event.target && event.target.nodeName == "DIV") {
+          if (SearchFilter.pageUpdateEventTimer)
+            clearTimeout(SearchFilter.pageUpdateEventTimer);
+          SearchFilter.pageUpdateEventTimer = setTimeout(function() {
+            SearchFilter.pageUpdateEventTimer = null;
+            SearchFilter.filtering();
+          }, 300);
+        }
+      }, false);
     },
 
     save: function() {
@@ -715,21 +728,6 @@
       }
     }
     return null;
-  }
-
-  // For AutoPagerize
-  function addPageUpdateEventListener(listener, loop) {
-    if ("undefined" == typeof loop) {
-      loop = 4;
-      document.addEventListener("GM_AutoPagerizeNextPageLoaded", listener, false);
-    }
-    if (window.AutoPagerize && window.AutoPagerize.addFilter) {
-      document.removeEventListener("GM_AutoPagerizeNextPageLoaded", listener, false);
-      window.AutoPagerize.addFilter(listener);
-    }
-    else if (loop > 1) {
-      setTimeout(arguments.callee, 1000, listener, loop - 1);
-    }
   }
 
   function hasClass(element, name) {
