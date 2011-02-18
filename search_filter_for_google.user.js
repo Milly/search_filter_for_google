@@ -78,7 +78,13 @@
       "||clip.livedoor.com^",
       "||psearch.yahoo.co.jp^",
       "/^https?:\\/\\/(a|b|r|h|mgw)\\.hatena\\.ne\\.jp\\//",
-      "/^https?:\\/\\/(esearch|tag|pt\\.afl)\\.rakuten\\.co\\.jp\\//"
+      "/^https?:\\/\\/(esearch|tag|pt\\.afl)\\.rakuten\\.co\\.jp\\//",
+      "!*** Wikipedia clones ***",
+      "||wpedia*.goo.ne.jp^",
+      "||wkp.fresheye.com^",
+      "||wapedia.mobi^",
+      "||jiten.biglobe.ne.jp^",
+      "||r25.yahoo.co.jp/keyword^"
     ],
 
     // Default hidden mode
