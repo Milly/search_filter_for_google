@@ -436,7 +436,7 @@
     },
 
     checkFilterValid: function(filter) {
-      if (!SearchFilter.createRegString(filter)) {
+      if ("!" != filter[0] && !SearchFilter.createRegString(filter)) {
         alert(_('invalid', filter));
         return false;
       }
