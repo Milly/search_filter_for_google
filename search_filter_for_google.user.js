@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Search Filter for Google
 // @description    Remove Google search results by filter.
-// @version        1.1.0
+// @version        1.1.1
 // @author         Milly
 // @namespace      http://d.hatena.ne.jp/MillyC/
 // @homepage       http://userscripts.org/scripts/show/92206
